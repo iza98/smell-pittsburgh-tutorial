@@ -1,1 +1,1 @@
-# smell-pittsburgh-teaching
+# smell-pittsburgh-tutorial
