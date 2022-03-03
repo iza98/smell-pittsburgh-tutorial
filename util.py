@@ -17,6 +17,8 @@ from sklearn.metrics import r2_score
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import precision_recall_fscore_support
+from sklearn.metrics import accuracy_score
+from sklearn.ensemble import RandomForestClassifier
 
 
 def generateLogger(file_name, log_level=logging.INFO, name=str(uuid.uuid4()), format="%(asctime)s %(levelname)s %(message)s"):
@@ -532,3 +534,64 @@ def plotClusterPairGrid(X, Y, out_p, w, h, title, is_Y_continuous,
 def isDatetimeObjTzAware(dt):
     """Find if the datetime object is timezone aware"""
     return dt.tzinfo is not None and dt.tzinfo.utcoffset(dt) is not None
+
+
+def createSplits(test_size, train_size, dataset_size):
+    """
+    Create the splits for cross-validation
+
+    Input:
+        test_size : number of samples for testing
+        train_size : number of samples for training
+        dataset_size : number of total samples
+    """
+    cv = []
+    for i in range(train_size, dataset_size, test_size):
+        start = i - train_size
+        end = i + test_size
+        if (end >= dataset_size): break
+        train_index = range(start, i)
+        test_index = range(i, end)
+        cv.append((list(train_index), list(test_index)))
+    return cv
+
+
+def scorer(clf, X, y):
+    """A customized scoring function to evaluate a model"""
+    # Make predictions
+    y_pred = clf.predict(X)
+    # Evaluation metrics
+    c = confusion_matrix(y, y_pred, labels=[0,1])
+    p = precision_recall_fscore_support(y, y_pred, average="binary", zero_division=0)
+    a = accuracy_score(y, y_pred)
+    return {"tn": c[0,0], "fp": c[0,1], "fn": c[1,0], "tp": c[1,1],
+            "precision": p[0], "recall": p[1], "f1": p[2], "accuracy": a}
+
+
+def printScores(cv_results):
+    """Print the cross-validation results"""
+    print("\n================================================")
+    print("average f1-score:", round(np.mean(cv_results["test_f1"]), 2))
+    print("average precision:", round(np.mean(cv_results["test_precision"]), 2))
+    print("average recall:", round(np.mean(cv_results["test_recall"]), 2))
+    print("average accuracy:", round(np.mean(cv_results["test_accuracy"]), 2))
+    print("number of true positives:", np.sum(cv_results["test_tp"]))
+    print("number of false positives:", np.sum(cv_results["test_fp"]))
+    print("number of true negatives:", np.sum(cv_results["test_tn"]))
+    print("number of false negatives:", np.sum(cv_results["test_fn"]))
+
+
+def computeFeatureImportance(df_X, df_Y, clf=None):
+    if clf is None:
+        clf = RandomForestClassifier(random_state=0)
+    clf.fit(df_X, df_Y.squeeze())
+    feat_names = df_X.columns.copy()
+    feat_ims = np.array(clf.feature_importances_)
+    sorted_ims_idx = np.argsort(feat_ims)[::-1]
+    feat_names = feat_names[sorted_ims_idx]
+    feat_ims = np.round(feat_ims[sorted_ims_idx], 5)
+    print("\n================================================")
+    print("Display feature importance")
+    print("Use model:", clf)
+    for k in zip(feat_ims, feat_names):
+        print("{0:.5f}".format(k[0]) + " -- " + str(k[1]))
