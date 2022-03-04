@@ -49,7 +49,9 @@ This step does the following:
 - Treat missing data
 
 The returned variable "df_sensor" means the preprocessed sensor data.
-The DateTime column means the timestamp.
+The "DateTime" column means the timestamp
+, which has the format "year-month-day hour:minute:second+timezone".
+All the timestamps in "df_sensor" is in the GMT timezone.
 Other columns mean the average value of the sensor data in the previous hour.
 For example, "2016-10-31 06:00:00+00:00" means October 31 in 2016 at 6AM UTC time.
 Column "3.feed_1.SO2_PPM" means the averaged SO2 values from 5AM to 6AM.
@@ -104,7 +106,18 @@ More explanation about the suffix is in the following URL:
 - https://tools.wprdc.org/pages/air-quality-docs.html
 
 The returned variable "df_smell" means the preprocessed smell data.
-[TODO: explain what each column mean]
+Similar to "df_sensor", "df_smell" also has the "DateTime" column indicating timestamps.
+The timestamps also have the same format as in the "df_sensor" variable.
+Other columns mean the sum of smell ratings within an hour in a specific zipcode.
+For example, the "15217" column indicates the zipcode 15217 in Pittsburgh, Pennsylvania.
+In the latest row, the timestamp is "2018-09-30 05:00:00+00:00"
+, which means this row contains the data from 4:00 to 5:00 on September 30 in 2018.
+For example, on this row, column "15217" has value 5
+, which means there is a smell report with rating 5 in the above mentioned time range.
+Notice that the data ignored all smell ratings from 1 to 2.
+This is becasue we only want the ratings that indicate "bad" smell.
+For more description about the smell, please check the following URL:
+- https://smellpgh.org/how_it_works
 
 Both "df_sensor" and "df_smell" use the pandas.DataFrame data structure.
 More information about the data structure is in the following URL:
@@ -144,7 +157,7 @@ Does using more variables help increase model performance?
 # Select some variables, which means the columns in the data table.
 # (you may want to modify this part to add more variables for experiments)
 # (you can also comment out the following two lines to indicate that you want all variables)
-wanted_cols = ["DateTime", "3.feed_28.H2S_PPM", "3.feed_11067.SONICWD_DEG..3.feed_43.SONICWD_DEG"]
+wanted_cols = ["DateTime", "3.feed_28.H2S_PPM"]
 df_sensor = df_sensor[wanted_cols]
 
 # Print the selected sensor data
