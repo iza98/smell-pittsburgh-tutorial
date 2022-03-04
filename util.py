@@ -579,19 +579,20 @@ def printScores(cv_results):
     print("number of false positives:", np.sum(cv_results["test_fp"]))
     print("number of true negatives:", np.sum(cv_results["test_tn"]))
     print("number of false negatives:", np.sum(cv_results["test_fn"]))
+    print("================================================\n")
 
 
 def computeFeatureImportance(df_X, df_Y, clf=None):
     if clf is None:
         clf = RandomForestClassifier(random_state=0)
+    print("Computer feature importance using model:", clf)
     clf.fit(df_X, df_Y.squeeze())
     feat_names = df_X.columns.copy()
     feat_ims = np.array(clf.feature_importances_)
     sorted_ims_idx = np.argsort(feat_ims)[::-1]
     feat_names = feat_names[sorted_ims_idx]
     feat_ims = np.round(feat_ims[sorted_ims_idx], 5)
-    print("\n================================================")
-    print("Display feature importance")
-    print("Use model:", clf)
-    for k in zip(feat_ims, feat_names):
-        print("{0:.5f}".format(k[0]) + " -- " + str(k[1]))
+    df = pd.DataFrame()
+    df["feature_importance"] = feat_ims
+    df["feature_name"] = feat_names
+    return df

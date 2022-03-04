@@ -7,13 +7,16 @@ The dataset that we will use is from the following URL:
 For the background of this project, please check the following paper:
 - https://arxiv.org/pdf/1912.11936.pdf
 
+This script mainly uses the scikit-learn package, documented in the URL below:
+- https://scikit-learn.org/stable/
+
 Our task is to train a model (denoted F) to predict presence of bad smell.
 We will use the term "smell event" to indicate the "presence of bad smell".
 The model (F) maps a set of features (X) to a response (Y), where Y=F(X).
 The features are extracted from the raw data from air quality and weather sensors.
 The response means if there will be a bad smell event in the future.
 
-Now, how to define a bad smell event?
+How can we define a bad smell event?
 We define it as if the sum of smell ratings within a time range exceeds a threshold.
 This reflects if many people reports bad smell ratings within a future time range.
 Details will be explained as you move forward to read this script.
@@ -337,19 +340,33 @@ model = DummyClassifier(strategy="constant", constant=0)
 # Perform cross-validation to evaluate the model
 # (no need to modify this part)
 print("Perform cross-validation, please wait...")
-result = cross_validate(model, df_X, df_Y.squeeze(), cv=splits, scoring=scorer, n_jobs=-2)
+result = cross_validate(model, df_X, df_Y.squeeze(), cv=splits, scoring=scorer)
 printScores(result)
 
 
 """
 Step 5: Investigate the importance of each feature
 
-[TODO: explain how this part works]
+After training the model and evaluate its performance
+, we now have a better understanding about how to predict smell events.
+However, what if we want to know which are the important features?
+For example, which pollutants are the major source of the bad smell?
+Which pollution source is likely related to the bad smell?
+Under what situation will the pollutants travel to the Pittsburgh city area?
+This information can be important to help the municipality evaluate air pollution policies.
+This information can also help local communities to advocate for policy changes.
+
+It turns out that some machine learning models give the weights of features.
+A feature with higher weight means it is more important to help the model make predictions.
+Notice that to use this technique, the model needs to fit the data reasonably well.
+So in this step, we will use the Random Forest model that has been proven useful before:
+- https://arxiv.org/pdf/1912.11936.pdf
 """
 # Import packages for reuse
 # (no need to modify this part)
 from util import computeFeatureImportance
 
-# Compute feature importance weights
+# Compute and show feature importance weights
 # (no need to modify this part)
-computeFeatureImportance(df_X, df_Y)
+feature_importance = computeFeatureImportance(df_X, df_Y)
+pretty_print(feature_importance, "Display feature importance")
