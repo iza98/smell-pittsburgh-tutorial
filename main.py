@@ -73,7 +73,7 @@ Here is what it means for each feed ID:
 - Feed 3508: South Allegheny High School AirNow
 - Feed 24: Glassport High Street ACHD
 
-You can search the metadata of the feed by searching the feed ID in the following URL:
+You can get the metadata and location of the feed by searching the feed ID below:
 - https://environmentaldata.org/
 
 Some column names look like "3.feed_11067.SIGTHETA_DEG..3.feed_43.SIGTHETA_DEG".
@@ -138,9 +138,18 @@ pretty_print(df_smell, "Display smell data and column names")
 Step 2: Select variables from the preprocessed sensor data
 
 We may want to pick a subset of the sensor data instead of using all of them.
-Our intuition is that H2S emissions near the pollution source may be a good variable.
+Our intuition is that the smell may come from chemical compounds near major pollution sources.
+From the knowledge of local people, there is a large pollution source
+, which is the Clairton Mill Works that belongs to the United States Steel Corporation.
+This pollution source is located at the south part of Pittsburgh.
+This factory produces petroleum coke, which is a fuel to refine steel.
+And during the coke refining process, it generates pollutants.
+One of the pollutant is H2S (hydrogen sulfide), which smells like rotten eggs.
+We think that H2S near the pollution source may be a good variable.
 So we first select "3.feed_28.H2S_PPM"
-, which is the H2S measurement from a monitoring station at the south of Pittsburgh.
+, which is the H2S measurement from a monitoring station near this pollution source.
+
+Now here is a question for you:
 
 Can you improve the model performance by adding more variables?
 You can play with the selection of variables and see how it affects model performance.
@@ -171,7 +180,7 @@ Step 3: Extract features (X) and the response (Y) from the preprocessed data
 We want to extract features (X) for predicting smell events.
 We also want to extract the response (Y) which indicates smell events.
 This step does the following:
-- Compute the features based on the "look_back_hrs" parameter
+- Compute the features based on the "look_back_hrs" and "add_inter" parameters
 - Compute the response based on the "smell_predict_hrs" and "smell_thr" parameters
 
 Parameter "smell_thr" is the threshold to define a smell event.
@@ -190,12 +199,32 @@ The sensor data includes air quality and weather data from deployed sensors.
 For example, setting it to 2 means to check the sensor data in the previous 2 hours.
 If it is 12:00 now, the model will use sensor data from 10:00 to 12:00 to predict smell events.
 
-The returned variable "df_X" means the features (X).
-[TODO: explain what the columns mean]
+Parameter "add_inter" means if we want to add interaction terms to the features.
+For example, suppose there are features X1 and X2.
+Setting "add_inter" to True means we want to add X1*X2 as a new feature.
+The term X1*X2 means multiplying the values in X1 and X2
+, which indicate the interaction effect of these two variables.
+For example, suppose we multiple a pollutant (e.g., H2S) with wind direction as a new feature.
+This new feature means the pollutant weighted by wind directions.
 
-The returned variable "df_Y" means the response (Y).
+The returned variable "df_X" means the features (X).
+The column names generally follow the format in the "df_sensor" variable.
+Notice that there are some differences in the suffix of the column names.
+For example, there can be "H2S_PPM", "H2S_PPM_1h", and "H2S_PPM_2h",
+The difference is that "H2S_PPM" means the current time of H2S reading
+, and "H2S_PPM_1h" means the H2S reading in the previous 1 hour
+, and "H2S_PPM_2h" means the reading in the previous 2 hour.
+There are also other new columns.
+Column "Day" means the day of month.
+Column "DayOfWeek" means the day of week, where 0 means Monday, and 6 means Sunday.
+Column "HourOfDay" means the hour of the day, where 0 means 0:00, and 23 means 23:00.
+Also, setting the "add_inter" variable to True will produce interaction terms.
+For example, something like "3.feed_28.H2S_PPM * 3.feed_28.H2S_PPM_1h"
+, which means the multiplication of "3.feed_28.H2S_PPM" and "3.feed_28.H2S_PPM_1h" columns.
+
+The returned variable "df_Y" means the response (Y)
+, which is whether bad smell will happen in the future "smell_predict_hrs" hours.
 Response value 0 means no smell events in the future.
-[TODO: explain what the columns mean]
 
 Both "df_X" and "df_Y" also use the pandas.DataFrame data structure.
 If you forgot what is a DataFrame, check the following URL:
@@ -271,7 +300,9 @@ So, this means we are using previous 14 days of sensor data to train the model
 For example, every Sunday we can re-train the model with the updated data
 , so that we have the updated model to predict smell events every week.
 
-But, do we really believe that 14 days of data is enough to train the model?
+Now, here are some questions for you:
+
+Do we really believe that 14 days of data is enough to train the model?
 Specifically, can you figure out how much data is needed to train the model?
 You can play with the "train_size" parameter and see how it affects model performance.
 
