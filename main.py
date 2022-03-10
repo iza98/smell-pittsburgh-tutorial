@@ -356,11 +356,19 @@ Under what situation will the pollutants travel to the Pittsburgh city area?
 This information can be important to help the municipality evaluate air pollution policies.
 This information can also help local communities to advocate for policy changes.
 
-It turns out that some machine learning models give the weights of features.
-A feature with higher weight means it is more important to help the model make predictions.
+It turns out that we can permute the data in a specific column to know the importance.
+If a column (corresponding to a feature) is important
+, permuting the data specifically for the column will make the model performacne decrease.
+So, we can compute the "decrease" of a metric and use it as feature importance.
+A higher decrease of the metric (e.g., f1-score) means that the feature is more important.
+It also means the feature is important for the model to make decisions.
+For more information, go to the following URL:
+- https://scikit-learn.org/stable/modules/permutation_importance.html
+
 Notice that to use this technique, the model needs to fit the data reasonably well.
-So in this step, we will use the Random Forest model that has been proven useful before:
-- https://arxiv.org/pdf/1912.11936.pdf
+Based on the research paper mentioned at the beginning of this script
+, we know that Random Forest fits the data well.
+So in this step, we will use the Random Forest model to compute featute importance.
 """
 # Import packages for reuse
 # (no need to modify this part)
@@ -368,5 +376,5 @@ from util import computeFeatureImportance
 
 # Compute and show feature importance weights
 # (no need to modify this part)
-feature_importance = computeFeatureImportance(df_X, df_Y, model=model, scoring="f1")
-pretty_print(feature_importance, "Display feature importance")
+feature_importance = computeFeatureImportance(df_X, df_Y, scoring="f1")
+pretty_print(feature_importance, "Display feature importance based on f1-score")
