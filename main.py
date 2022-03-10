@@ -368,8 +368,5 @@ from util import computeFeatureImportance
 
 # Compute and show feature importance weights
 # (no need to modify this part)
-try:
-    feature_importance = computeFeatureImportance(df_X, df_Y, clf=model)
-    pretty_print(feature_importance, "Display feature importance")
-except:
-    print("The model does not support feature importance.")
+feature_importance = computeFeatureImportance(df_X, df_Y, model=model, scoring="f1")
+pretty_print(feature_importance, "Display feature importance")

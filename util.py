@@ -19,6 +19,7 @@ from sklearn.metrics import confusion_matrix
 from sklearn.metrics import precision_recall_fscore_support
 from sklearn.metrics import accuracy_score
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.inspection import permutation_importance
 
 
 def generateLogger(file_name, log_level=logging.INFO, name=str(uuid.uuid4()), format="%(asctime)s %(levelname)s %(message)s"):
@@ -582,13 +583,15 @@ def printScores(cv_results):
     print("================================================\n")
 
 
-def computeFeatureImportance(df_X, df_Y, clf=None):
-    if clf is None:
-        clf = RandomForestClassifier(random_state=0)
-    print("Computer feature importance using model:", clf)
-    clf.fit(df_X, df_Y.squeeze())
+def computeFeatureImportance(df_X, df_Y, model=None, scoring=None):
+    if model is None:
+        model = RandomForestClassifier(random_state=0)
+    print("Computer feature importance using", model)
+    model.fit(df_X, df_Y.squeeze())
+    result = permutation_importance(model, df_X, df_Y,
+            n_repeats=10, random_state=0, scoring=scoring)
     feat_names = df_X.columns.copy()
-    feat_ims = np.array(clf.feature_importances_)
+    feat_ims = np.array(result.importances_mean)
     sorted_ims_idx = np.argsort(feat_ims)[::-1]
     feat_names = feat_names[sorted_ims_idx]
     feat_ims = np.round(feat_ims[sorted_ims_idx], 5)
