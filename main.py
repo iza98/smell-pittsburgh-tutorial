@@ -339,6 +339,7 @@ model = DummyClassifier(strategy="constant", constant=0)
 
 # Perform cross-validation to evaluate the model
 # (no need to modify this part)
+print("Use model", model)
 print("Perform cross-validation, please wait...")
 result = cross_validate(model, df_X, df_Y.squeeze(), cv=splits, scoring=scorer)
 printScores(result)
