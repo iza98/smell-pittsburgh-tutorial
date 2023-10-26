@@ -534,7 +534,7 @@ def plotClusterPairGrid(X, Y, out_p, w, h, title, is_Y_continuous,
 
 def isDatetimeObjTzAware(dt):
     """Find if the datetime object is timezone aware"""
-    return dt.tzinfo is not None and dt.tzinfo.utcoffset(dt) is not None
+    return isinstance(dt, pd.DatetimeIndex) and dt.tz is not None
 
 
 def createSplits(test_size, train_size, dataset_size):
