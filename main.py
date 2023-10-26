@@ -318,7 +318,11 @@ You can play with the "test_size" parameter and see how it affects model perform
 from util import scorer
 from util import printScores
 from util import createSplits
+
 from sklearn.dummy import DummyClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+
 from sklearn.model_selection import cross_validate
 
 # Indicate how much data you want to use to test the model
@@ -335,7 +339,10 @@ splits = createSplits(test_size, train_size, df_X.shape[0])
 
 # Indicate which model you want to use to predict smell events
 # (you may want to modify this part to use other models)
+
 model = DummyClassifier(strategy="constant", constant=0)
+# model = DecisionTreeClassifier()
+# model = RandomForestClassifier()
 
 # Perform cross-validation to evaluate the model
 # (no need to modify this part)
