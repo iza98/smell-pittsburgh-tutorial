@@ -195,8 +195,12 @@ def extractFeatures(df, b_hr, add_inter, add_roll, add_diff, add_sqa):
                 if j > i:
                     c1 = df_feat.columns[i]
                     c2 = df_feat.columns[j]
-                    c = c1 + " * " + c2
-                    df_inte[c] = df_feat[c1] * df_feat[c2]
+                    if c1 != c2:
+                        if (isinstance(df_feat[c1].iloc[0], (int, float)) and
+                            isinstance(df_feat[c2].iloc[0], (int, float))):
+                            c = c1 + " * " + c2
+                            df_inte[c] = df_feat[c1] * df_feat[c2]
+
 
     # Add squared terms
     if add_sqa:
