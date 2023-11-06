@@ -169,8 +169,8 @@ Does using more variables help increase model performance?
 # Select some variables, which means the columns in the data table.
 # (you may want to modify this part to add more variables for experiments)
 # (you can also comment out the following two lines to indicate that you want all variables)
-wanted_cols = ["DateTime", "3.feed_24.PM10_UG_M3", "3.feed_28.SONICWS_MPH", "3.feed_27.CO_PPB", "3.feed_24.PM10_UG_M3", "3.feed_3.SO2_PPM"]
-df_sensor = df_sensor[wanted_cols]
+# wanted_cols = ["DateTime", "3.feed_24.PM10_UG_M3", "3.feed_28.SONICWS_MPH", "3.feed_27.CO_PPB", "3.feed_24.PM10_UG_M3", "3.feed_3.SO2_PPM"]
+# df_sensor = df_sensor[wanted_cols]
 
 # Print the selected sensor data
 # (no need to modify this part)
@@ -265,7 +265,7 @@ look_back_hrs = 2
 
 # Indicate if you want to add interaction terms in the features (like x1*x2)
 # (you may want to modify this parameter for experiments)
-add_inter = True
+add_inter = False
 
 # Compute and print features (X) and response (Y)
 # (no need to modify this part)
@@ -325,7 +325,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
-import xgboost as xgb
+from xgboost import XGBClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import make_scorer, accuracy_score, precision_score, recall_score, f1_score
@@ -339,25 +339,6 @@ test_size = 168
 # Indicate how much data you want to use to train the model
 # (you may want to modify this parameter for experiments)
 train_size = 8064
-
-"""For K-NN"""
-# Set the range of k values to search over
-param_grid = {"n_neighbors": [1, 3, 5, 7, 9, 11, 13, 15, 17, 19]}
-
-"""For Logistic Regression"""
-# # Define hyperparameters for Logistic Regression
-# param_grid = {
-#     'C': [0.001, 0.01, 0.1, 1, 10, 100],  # Regularization strength
-#     'penalty': ['l1', 'l2'],  # Regularization type
-# }
-
-"""For Support Vector Machine"""
-# # Define hyperparameters for the SVM
-# param_grid = {
-#     'C': [0.001, 0.01, 0.1, 1, 10, 100],  # Regularization strength
-#     'kernel': ['linear', 'rbf', 'poly'],  # Kernel types
-#     # Add other SVM hyperparameters here if needed
-# }
 
 # Create a StandardScaler for scaling the data
 scaler = StandardScaler()
@@ -380,42 +361,58 @@ splits = createSplits(test_size, train_size, X_scaled.shape[0])
 """
 For K-NN
 """
-# Create a GridSearchCV instance to find the best k value
-grid_search = GridSearchCV(estimator=KNeighborsClassifier(), param_grid=param_grid, cv=splits, scoring=scorer, refit = 'f1')
+# # Set the range of k values to search over
+# param_grid = {"n_neighbors": [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21]}
 
-# For the grid search to your scaled training data
-grid_search.fit(X_scaled, df_Y.squeeze())
+# # Create a GridSearchCV instance to find the best k value
+# grid_search = GridSearchCV(estimator=KNeighborsClassifier(), param_grid=param_grid, cv=splits, scoring=scorer, refit = 'f1')
 
-# Get the best k value from the grid search results
-best_k = grid_search.best_params_['n_neighbors']
+# # For the grid search to your scaled training data
+# grid_search.fit(X_scaled, df_Y.squeeze())
 
-# Create a K-NN model with the best k value
-model = KNeighborsClassifier(n_neighbors=best_k)
-print("Use model with best k value:", model)
+# # Get the best k value from the grid search results
+# best_k = grid_search.best_params_['n_neighbors']
+
+# # Create a K-NN model with the best k value
+# model = KNeighborsClassifier(n_neighbors=best_k)
+# print("Use model with best k value:", model)
 
 """
 For Logistic Regression
 """
-# # Create the Logistic Regression model
-# logistic_reg = LogisticRegression(solver='liblinear')
+# Define hyperparameters for Logistic Regression
+param_grid = {
+    'C': [0.001, 0.01, 0.1, 1, 10, 100],  # Regularization strength
+    'penalty': ['l1', 'l2'],  # Regularization type
+}
 
-# # Create a GridSearchCV instance to find the best hyperparameters
-# grid_search = GridSearchCV(estimator=logistic_reg, param_grid=param_grid, cv=splits, scoring=scorer, refit='f1')
+# Create the Logistic Regression model
+logistic_reg = LogisticRegression(solver='liblinear')
 
-# # Fit the grid search to your scaled training data
-# grid_search.fit(X_scaled, df_Y.squeeze())
+# Create a GridSearchCV instance to find the best hyperparameters
+grid_search = GridSearchCV(estimator=logistic_reg, param_grid=param_grid, cv=splits, scoring=scorer, refit='f1')
 
-# # Get the best hyperparameters from the grid search results
-# best_C = grid_search.best_params_['C']
-# best_penalty = grid_search.best_params_['penalty']
+# Fit the grid search to your scaled training data
+grid_search.fit(X_scaled, df_Y.squeeze())
 
-# # Create a Logistic Regression model with the best hyperparameters
-# model = LogisticRegression(C=best_C, penalty=best_penalty, solver='liblinear')
-# print("Use model with best hyperparameters:", model)
+# Get the best hyperparameters from the grid search results
+best_C = grid_search.best_params_['C']
+best_penalty = grid_search.best_params_['penalty']
+
+# Create a Logistic Regression model with the best hyperparameters
+model = LogisticRegression(C=best_C, penalty=best_penalty, solver='liblinear')
+print("Use model with best hyperparameters:", model)
 
 """
 For Support Vector Machine
 """
+# # Define hyperparameters for the SVM
+# param_grid = {
+#     'C': [0.001, 0.01, 0.1, 1, 10, 100],  # Regularization strength
+#     'kernel': ['linear', 'rbf', 'poly'],  # Kernel types
+#     # Add other SVM hyperparameters here if needed
+# }
+
 # # Create the SVM model with default hyperparameters
 # svm = SVC()
 
@@ -434,12 +431,33 @@ For Support Vector Machine
 # print("Use model with best hyperparameters:", model)
 
 """For Gradient Boosting"""
-# # Indicate which model you want to use to predict smell events (XGBoost)
-# model = xgb.XGBClassifier(
+# # Define hyperparameters for the XGBoost
+# param_grid = {
+#     'n_estimators': [100],
+#     'max_depth': [3, 4, 5, 6],
+#     'learning_rate': [0.05, 0.1, 0.20, 0.3]
+# }
+
+# # Create a XGBoost model with default hyperparameters
+# xgboost = XGBClassifier(objective='binary:logistic')
+
+# # Create a GridSearchCV instance to find the best hyperparameters
+# grid_search = GridSearchCV(estimator=xgboost, param_grid=param_grid, cv=splits, scoring=scorer, refit='f1')
+
+# # Fit the grid search to the scaled training data
+# grid_search.fit(X_scaled, df_Y.squeeze())
+
+# # Get the best hyperparameters from the grid search results
+# best_n_estimators = grid_search.best_params_['n_estimators']
+# best_max_depth = grid_search.best_params_['max_depth']
+# best_learning_rate = grid_search.best_params_['learning_rate']
+
+# # Create a XGBoost model with the best hyperparameters
+# model = XGBClassifier(
 #     objective='binary:logistic',  # For binary classification
-#     n_estimators=100,             # Number of boosting rounds (you can adjust this)
-#     max_depth=3,                  # Maximum tree depth (you can adjust this)
-#     learning_rate=0.1             # Learning rate (you can adjust this)
+#     n_estimators=best_n_estimators,             # Number of boosting rounds
+#     max_depth=best_max_depth,                  # Maximum tree depth
+#     learning_rate=best_learning_rate           # Learning rate
 # )
 
 # Perform cross-validation to evaluate the model
@@ -481,5 +499,5 @@ from util import computeFeatureImportance
 
 # Compute and show feature importance weights
 # (no need to modify this part)
-feature_importance = computeFeatureImportance(df_X, df_Y, scoring="f1")
-pretty_print(feature_importance, "Display feature importance based on f1-score")
+# feature_importance = computeFeatureImportance(df_X, df_Y, scoring="f1")
+# pretty_print(feature_importance, "Display feature importance based on f1-score")
