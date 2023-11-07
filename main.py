@@ -91,11 +91,11 @@ def train_model(model, X_train, Y_train):
   model.fit(X_train, Y_train)
   return model
 
-# Calculate test size as 20% of the total data
-test_size = 168
+# Set the test size (in hours)
+test_size = 504
 
-# Calculate train size as 80% of the total data
-train_size = 336
+# Set the train size (in hours)
+train_size = 8064
 
 """For K-NN"""
 # Set the range of k values to search over
