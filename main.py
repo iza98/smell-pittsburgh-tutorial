@@ -380,55 +380,55 @@ For K-NN
 """
 For Logistic Regression
 """
-# Define hyperparameters for Logistic Regression
-param_grid = {
-    'C': [0.001, 0.01, 0.1, 1, 10, 100],  # Regularization strength
-    'penalty': ['l1', 'l2'],  # Regularization type
-}
-
-# Create the Logistic Regression model
-logistic_reg = LogisticRegression(solver='liblinear')
-
-# Create a GridSearchCV instance to find the best hyperparameters
-grid_search = GridSearchCV(estimator=logistic_reg, param_grid=param_grid, cv=splits, scoring=scorer, refit='f1')
-
-# Fit the grid search to your scaled training data
-grid_search.fit(X_scaled, df_Y.squeeze())
-
-# Get the best hyperparameters from the grid search results
-best_C = grid_search.best_params_['C']
-best_penalty = grid_search.best_params_['penalty']
-
-# Create a Logistic Regression model with the best hyperparameters
-model = LogisticRegression(C=best_C, penalty=best_penalty, solver='liblinear')
-print("Use model with best hyperparameters:", model)
-
-"""
-For Support Vector Machine
-"""
-# # Define hyperparameters for the SVM
+# # Define hyperparameters for Logistic Regression
 # param_grid = {
-#     'C': [0.001, 0.01, 0.1, 1, 10, 100],  # Regularization strength
-#     'kernel': ['linear', 'rbf', 'poly'],  # Kernel types
-#     # Add other SVM hyperparameters here if needed
+#     'C': [ 0.1, 1, 10, 100],  # Regularization strength
+#     'penalty': ['l1', 'l2'],    # Regularization type
 # }
 
-# # Create the SVM model with default hyperparameters
-# svm = SVC()
+# # Create the Logistic Regression model
+# logistic_reg = LogisticRegression(solver='liblinear')
 
 # # Create a GridSearchCV instance to find the best hyperparameters
-# grid_search = GridSearchCV(estimator=svm, param_grid=param_grid, cv=splits, scoring=scorer, refit='f1')
+# grid_search = GridSearchCV(estimator=logistic_reg, param_grid=param_grid, cv=splits, scoring=scorer, refit='f1')
 
 # # Fit the grid search to your scaled training data
 # grid_search.fit(X_scaled, df_Y.squeeze())
 
 # # Get the best hyperparameters from the grid search results
 # best_C = grid_search.best_params_['C']
-# best_kernel = grid_search.best_params_['kernel']
+# best_penalty = grid_search.best_params_['penalty']
 
-# # Create an SVM model with the best hyperparameters
-# model = SVC(C=best_C, kernel=best_kernel)
+# # Create a Logistic Regression model with the best hyperparameters
+# model = LogisticRegression(C=best_C, penalty=best_penalty, solver='liblinear')
 # print("Use model with best hyperparameters:", model)
+
+"""
+For Support Vector Machine
+"""
+# Define hyperparameters for the SVM
+param_grid = {
+    'C': [1],  # Regularization strength
+    'kernel': ['linear', 'rbf', 'poly'],  # Kernel types
+    # Add other SVM hyperparameters here if needed
+}
+
+# Create the SVM model with default hyperparameters
+svm = SVC()
+
+# Create a GridSearchCV instance to find the best hyperparameters
+grid_search = GridSearchCV(estimator=svm, param_grid=param_grid, cv=splits, scoring=scorer, refit='f1')
+
+# Fit the grid search to your scaled training data
+grid_search.fit(X_scaled, df_Y.squeeze())
+
+# Get the best hyperparameters from the grid search results
+best_C = grid_search.best_params_['C']
+best_kernel = grid_search.best_params_['kernel']
+
+# Create an SVM model with the best hyperparameters
+model = SVC(C=best_C, kernel=best_kernel)
+print("Use model with best hyperparameters:", model)
 
 """For Gradient Boosting"""
 # # Define hyperparameters for the XGBoost
